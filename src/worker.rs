@@ -1,53 +1,55 @@
 use crate::worker_task::WorkerTask;
 use std::{
-    fs,
-    io::{prelude::*, BufReader},
-    net::TcpStream,
-    sync::{mpsc::Receiver, Arc, Mutex},
+    sync::{
+        mpsc::Receiver,
+        Arc, Mutex,
+    },
     thread,
-    time::Duration,
 };
-
-
 pub struct Worker {
     pub worker_id: usize,
     pub thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
-    pub fn new(worker_id: usize, receiver: Arc<Mutex<Receiver<WorkerTask>>>) -> Self {
+    pub fn new(
+        worker_id: usize,
+        receiver: Arc<Mutex<Receiver<WorkerTask>>>,
+    ) -> Self {
         let thread = thread::spawn(move || {
             loop {
+
                 let task = {
                     let job = match receiver.lock() {
-                        Ok(lock) => lock.recv(), // Receive task within the lock
+                        // Receive task within the lock
+                        Ok(lock) => lock.recv(),
+                        // Exit thread if mutex is poisoned
                         Err(_) => {
                             eprintln!("Worker {}: Mutex was poisoned. Exiting.", worker_id);
-                            break; // Exit thread if mutex is poisoned
+                            break;
                         }
                     };
                     match job {
-                        Ok(task) => task,  // Return task outside lock
+                        // Return task outside lock
+                        Ok(task) => task,
+                        // Exit thread if channel is closed
                         Err(_) => {
                             eprintln!("Worker {}: Channel closed, exiting.", worker_id);
-                            break; // Exit thread if channel is closed
+                            break;
                         }
                     }
                 };
-    
+
                 // Process the task
-                println!("Worker {} got a job; executing.", worker_id);
+                println!("Worker {} got a task; executing.", worker_id);
                 task.run();
-    
-                // Sleep after processing
-                // thread::sleep(Duration::from_millis(100));
             }
         });
-    
+
+        // Return Worker
         Worker {
             worker_id,
             thread: Some(thread),
         }
     }
-
 }
