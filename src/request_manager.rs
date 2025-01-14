@@ -1,7 +1,10 @@
 use base64::{engine::general_purpose::STANDARD, Engine};
-use std::io::{BufRead, BufReader, Write};
+use std::io:: Write;
 use std::{fs, net::TcpStream, path::Path};
 
+use std::io::Read;
+
+// HttpRequest struct
 #[derive(Debug)]
 struct HttpRequest {
     method: String,
@@ -9,6 +12,7 @@ struct HttpRequest {
     _version: String,
 }
 
+// HttpResponse struct
 #[derive(Debug)]
 struct HttpResponse {
     status_line: String,
@@ -16,9 +20,15 @@ struct HttpResponse {
     content: String,
 }
 
+/// RequestManager
+/// Handles HTTP requests
+///     - Parses the request
+///     - Generates the response
+///     - Sends the response
 pub struct RequestManager {}
 
 impl RequestManager {
+    /// Optional constructor
     // fn new() -> Self {
     //     RequestManager {}
     // }
@@ -37,23 +47,37 @@ impl RequestManager {
     }
 
     fn parse_request(stream: &mut TcpStream) -> Result<HttpRequest, Box<dyn std::error::Error>> {
-        let buf_reader = BufReader::new(stream);
-        let request_line = buf_reader
-            .lines()
-            .next()
-            .ok_or("No request line received")??;
 
-        let parts: Vec<&str> = request_line.split_whitespace().collect();
-        if parts.len() != 3 {
-            // Normal message format not http format will echo the message back
+        // read the request
+        let mut buffer = [0; 512];
+        // Read data from the client
+        let bytes_read = stream.read(&mut buffer)?;
 
-            return  Ok(HttpRequest {
-                method: String::from("MESSAGE"),
-                path: (parts[0].to_string() + " " + parts[1] + " " + parts[2] ).to_string(),
-                _version: String::from("MESSAGE"),
-            });
-            // return Err("Invalid HTTP request format , message sent back".into());
+        let request = String::from_utf8_lossy(&buffer[..bytes_read]).to_string();
+
+        println!("from parse {}" , request);
+        // Split the request line into method, path, and version and remove \nHost: 
+        let mut parts: Vec<&str> = request.split(" ").collect();
+
+        if parts.len() >= 3 {
+            parts[2] = parts[2].split("\r\n").collect::<Vec<&str>>()[0];
         }
+
+        if parts[0] != "GET" && parts[0] != "POST" && parts[0] != "PUT" && parts[0] != "DELETE" && parts[0] != "INVALID" {
+
+            println!("from parse {}" , request);
+
+                // Normal message format not http format will echo the message back
+                return Ok(HttpRequest {
+                    method: String::from("MESSAGE"),
+                    path: request,
+                    _version: String::from("MESSAGE"),
+                });
+                // return Err("Invalid HTTP request format , message sent back".into());
+
+        }
+ 
+        
 
         Ok(HttpRequest {
             method: parts[0].to_string(),
@@ -62,6 +86,7 @@ impl RequestManager {
         })
     }
 
+    /// Generates the appropriate response
     fn generate_response(
         request: &HttpRequest,
     ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
@@ -83,11 +108,13 @@ impl RequestManager {
             ("GET", path) if path.ends_with(".jpg") => {
                 RequestManager::serve_image(&format!("static{}", path), "image/jpeg")
             }
-            ("MESSAGE", path )  =>  RequestManager::serve_message(path),
-            ("INVALID", path )   => RequestManager::serve_400(),
+            ("MESSAGE", path) => RequestManager::serve_message(path),
+            ("INVALID", _) => RequestManager::serve_400(),
             _ => RequestManager::serve_404(),
         }
     }
+
+    /// Serves a row messages 
     fn serve_message(message: &str) -> Result<HttpResponse, Box<dyn std::error::Error>> {
         Ok(HttpResponse {
             status_line: "MESSAGE".to_string(),
@@ -95,6 +122,7 @@ impl RequestManager {
             content: message.to_string(),
         })
     }
+    /// Serves an image
     fn serve_image(
         filepath: &str,
         content_type: &str,
@@ -114,6 +142,7 @@ impl RequestManager {
         })
     }
 
+    /// Serves a file
     fn serve_file(
         filepath: &str,
         content_type: &str,
@@ -130,24 +159,8 @@ impl RequestManager {
             content,
         })
     }
-    // fn serve_pdf(filepath: &str, content_type: &str) -> Result<HttpResponse, Box<dyn std::error::Error>> {
-    //     if !Path::new(filepath).exists() {
-    //         return ServerManager::serve_404();
-    //     }
 
-    //     // Read the file as binary data
-    //     let binary_content = fs::read(filepath)?;
-
-    //     // Encode the binary data as a Base64 string
-    //     let content = STANDARD.encode(binary_content);
-
-    //     Ok(HttpResponse {
-    //         status_line: "HTTP/1.1 200 OK".to_string(),
-    //         content_type: content_type.to_string(),
-    //         content, // Base64 encoded string
-    //     })
-    // }
-
+    /// Serves a 404 Not Found page
     fn serve_404() -> Result<HttpResponse, Box<dyn std::error::Error>> {
         let content = fs::read_to_string("static/404.html")
             .unwrap_or_else(|_| "<h1>404 - Page Not Found</h1>".to_string());
@@ -158,6 +171,8 @@ impl RequestManager {
             content,
         })
     }
+
+    /// Serves a 400 Bad Request
     fn serve_400() -> Result<HttpResponse, Box<dyn std::error::Error>> {
         let content = fs::read_to_string("static/400.html")
             .unwrap_or_else(|_| "<h1>400 - Bad Request</h1>".to_string());
@@ -169,16 +184,17 @@ impl RequestManager {
         })
     }
 
+    /// Sends the response
     fn send_response(
         stream: &mut TcpStream,
         response: &HttpResponse,
     ) -> Result<(), Box<dyn std::error::Error>> {
 
-        let response_string : String;
+        let response_string: String;
 
         if response.status_line == "MESSAGE" {
             response_string = response.content.clone();
-        }else {
+        } else {
             response_string = format!(
                 "{}\r\nContent-Type: {}\r\nContent-Length: {}\r\n\r\n{}",
                 response.status_line,
@@ -187,7 +203,6 @@ impl RequestManager {
                 response.content
             );
         }
-        
 
         stream.write_all(response_string.as_bytes())?;
         stream.flush()?;

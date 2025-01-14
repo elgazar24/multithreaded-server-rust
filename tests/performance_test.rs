@@ -3,6 +3,10 @@ use std::io::{Write, Read};
 use std::time::Instant;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::sync::atomic::AtomicBool;
+use std::time::Duration;
+
+use multithread_server_task::server_manager::ServerManager;
 
 #[test]
 #[ignore = "Performance test is should give you an idea of the performance of your server uncomment to run it and remove the ignore ( AFTER FINISH IT FAILS TO GIVE YOU RESULTS )"]
@@ -15,6 +19,35 @@ fn performance_test() {
 
     // Vector to store request durations
     let request_durations = Arc::new(Mutex::new(Vec::new()));
+
+    let ip_address = "localhost";
+    let port = 8080;
+    let base_threads_count = 4; // Use a reasonable number of threads
+
+    // create atomic flag to check if the server is running
+    let is_running = Arc::new(AtomicBool::new(true));
+
+    // Start the server
+    let mut server_manager = ServerManager::new(base_threads_count, ip_address, port);
+
+    // Clone the `is_running` reference to pass into the thread closure
+    let is_running_clone = Arc::clone(&is_running);
+
+    // Run server in a separate thread
+    thread::spawn(move || {
+        server_manager.start_server();
+
+        while is_running_clone.load(std::sync::atomic::Ordering::SeqCst) {}
+
+        // Stop the server
+        server_manager.stop();
+
+        // Allow the server to stop
+        thread::sleep(Duration::from_secs(1));
+    });
+
+    // Wait for the server to initialize (you can adjust the sleep duration based on your needs)
+    thread::sleep(Duration::from_secs(1));
 
     // Start time
     let start_time = Instant::now();
@@ -78,6 +111,9 @@ fn performance_test() {
         let durations = request_durations.lock().unwrap();
         durations.iter().map(|&d| d.as_secs_f64()).sum::<f64>() / successful_requests as f64
     };
+
+    // change the flag to false to stop the server
+    is_running.store(false, std::sync::atomic::Ordering::SeqCst);
 
     // Print the results
     let mut message  = "Performance Test Finished".to_string();

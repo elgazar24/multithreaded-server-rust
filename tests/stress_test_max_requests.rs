@@ -1,7 +1,11 @@
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
+use std::sync::atomic::AtomicBool;
 use std::thread;
+use std::time::Duration;
+
+use multithread_server_task::server_manager::ServerManager;
 
 
 
@@ -11,6 +15,36 @@ fn stress_test_max_requests() {
     let mut client_count = 1; // Start with 1 client and increase
     let failed_requests = Arc::new(Mutex::new(0)); // Thread-safe counter for failed requests
     let max_clients = 10000; // You can modify this depending on your server capacity
+
+    let ip_address = "localhost";
+    let port = 8080;
+    let base_threads_count = 4; // Use a reasonable number of threads
+
+    // create atomic flag to check if the server is running
+    let is_running = Arc::new(AtomicBool::new(true));
+
+    // Start the server
+    let mut server_manager = ServerManager::new(base_threads_count, ip_address, port);
+
+    // Clone the `is_running` reference to pass into the thread closure
+    let is_running_clone = Arc::clone(&is_running);
+
+    // Run server in a separate thread
+    thread::spawn(move || {
+        server_manager.start_server();
+
+        while is_running_clone.load(std::sync::atomic::Ordering::SeqCst) {}
+
+        // Stop the server
+        server_manager.stop();
+
+        // Allow the server to stop
+        thread::sleep(Duration::from_secs(1));
+    });
+
+    // Wait for the server to initialize (you can adjust the sleep duration based on your needs)
+    thread::sleep(Duration::from_secs(1));
+
 
     while client_count <= max_clients {
         let failed_requests_clone = Arc::clone(&failed_requests);
@@ -63,8 +97,12 @@ fn stress_test_max_requests() {
         }
 
         client_count += 1;
-        // Optionally, add a small delay to simulate more realistic client behavior
-        // thread::sleep(Duration::from_millis(10));
+       
+
+
     }
+
+    // change the flag to false to stop the server
+    is_running.store(false, std::sync::atomic::Ordering::SeqCst);
 }
 

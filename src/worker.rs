@@ -6,6 +6,12 @@ use std::{
     },
     thread,
 };
+
+///
+/// Worker
+/// Description :
+///     This struct is responsible for executing the tasks
+///
 pub struct Worker {
     pub worker_id: usize,
     pub thread: Option<thread::JoinHandle<()>>,
@@ -16,6 +22,7 @@ impl Worker {
         worker_id: usize,
         receiver: Arc<Mutex<Receiver<WorkerTask>>>,
     ) -> Self {
+        // Spawn thread to handle tasks
         let thread = thread::spawn(move || {
             loop {
 
