@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,4 +9,165 @@
     <h1>Main Page</h1>
     <p>This is the main page of the server</p>
 </body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohamed Elgazar's Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="info">
+                    <a href="#"><img src="logo.png" alt="Logo" class="logo_img"></a>
+                    <a href="#" class="logo_name">Mohamed Elgazar</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        <ul class="nav-menu">
+            <li><a href="#home" class="nav-link" data-section="home">Home</a></li>
+            <li><a href="#projects" class="nav-link" data-section="projects">Projects</a></li>
+            <li><a href="#about" class="nav-link" data-section="about">About</a></li>
+            <li><a href="#contact" class="nav-link" data-section="contact">Contact</a></li>
+            <div class="download-cv">
+                <div class="dropdown">
+                    <button class="dropbtn">Download CV</button>
+                    <div class="dropdown-content">
+                        <a href="/MohamedElgazarCV_Flutter.pdf">Flutter</a>
+                        <a href="/MohamedElgazarCV_EmbeddedSystems.pdf">Embedded Systems</a>
+                        <a href="/MohamedElgazarCV_Instructor.pdf">Instructor</a>
+                        <a href="/MohamedElgazarCV_Flutter.pdf">FullStack</a>
+                    </div>
+                </div>
+            </div>
+        </ul>
+    </div>
+    </nav>
+
+    <header id="dynamic-header" class="parallax">
+        <div class="header-content">
+            <h1 id="header-title">Welcome to My Portfolio</h1>
+            <p id="header-subtitle">Transforming ideas into digital realities</p>
+        </div>
+    </header>
+
+    <main>
+        <section id="projects">
+            <div class="container">
+                <h2 class="section-title">My Projects</h2>
+                <div class="projects-grid">
+                    <div class="project">
+                        <img src="myphoto.png" alt="Project 1">
+                        <h3>Pipe Explorer Robot</h3>
+                        <p>Description of Project 1</p>
+                        <div class="skills">
+                            <span class="skill">Raspberry pi 3</span>
+                            <span class="skill">C & C++ </span>
+                            <span class="skill">python</span>
+                            <span class="skill">Backend Development</span>
+                            <span class="skill">Robotics</span>
+                        </div>
+                    </div>
+                    <div class="project">
+                        <img src="myphoto.png" alt="Project 2">
+                        <h3>AVR (ATmega32) Drivers</h3>
+                        <p>Description of Project 2</p>
+                        <div class="skills">
+                            <span class="skill">Embedded C</span>
+                            <span class="skill">Microcontrollers</span>
+                            <span class="skill">Embedded Development</span>
+                        </div>
+                    </div>
+                    <div class="project">
+                        <img src="myphoto.png" alt="Project 3">
+                        <h3>Mobile App ( Mersal )</h3>
+                        <p>Description of Project 3</p>
+                        <div class="skills">
+                            <span class="skill">Flutter</span>
+                            <span class="skill">Firebase</span>
+                            <span class="skill">SQLite</span>
+                            <span class="skill">REST API</span>
+                            <span class="skill">Mobile Development</span>
+                            <span class="skill">Android & IOS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="parallax">
+            <div class="container">
+                <h2 class="section-title">About Me</h2>
+                    <div class="about-content">
+                        <img src="myphoto.png" alt="Mohamed Elgazar" class="profile-pic">
+                        <p>Mechatronics engineer with a focus on embedded software engineering and a strong technical
+                            background in programming languages such as C, C++, and Python. I am experienced in working with
+                            various microcontrollers and know how to interface with them effectively and also familiar with mobile
+                            development and web development.</p>
+                        <ul class="skills-list">
+                            <p>My skills include:</p>
+                            <br>
+                            <li>Embedded C C++ , Microcontrollers, AUTOSAR ,Embedded Development </li>
+                            <li>Flutter, Firebase , SQLite ,REST API ,Mobile Development</li>
+                            <li>Node.js, Express, MongoDB</li>
+                            <li>Git, Misra C, SDLC</li>
+                        </ul>
+                    </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="container">
+                <h2 class="section-title">Contact Me</h2>
+                <div class="contact-content">
+                    <form id="contact-form" >
+                        <input type="text" name="name" placeholder="Your Name" required>
+                        <input type="email" name="email" placeholder="Your Email" required>
+                        <textarea name="message" placeholder="Your Message" required></textarea>
+                        <button type="submit">Send Message</button>
+                    </form>
+                    <div class="contact-info">
+                        <h3>Get in Touch</h3>
+                        <p><i class="fas fa-envelope"></i> melgazar725@gmail.com</p>
+                        <p><i class="fas fa-phone"></i> +20 1010815084</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Mansoura, Egypt</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <p>&copy; 2024 Mohamed Elgazar. All rights reserved.</p>
+            </div>
+            <nav class="footer-nav">
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="social-icons">
+                <a href="https://github.com/elgazar24" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/melgazar24/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://www.instagram.com/elgazarr_" target="_blank"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+
 </html>
