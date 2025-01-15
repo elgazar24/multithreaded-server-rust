@@ -1,9 +1,6 @@
 use crate::worker_task::WorkerTask;
 use std::{
-    sync::{
-        mpsc::Receiver,
-        Arc, Mutex,
-    },
+    sync::{mpsc::Receiver, Arc, Mutex},
     thread,
 };
 
@@ -18,14 +15,10 @@ pub struct Worker {
 }
 
 impl Worker {
-    pub fn new(
-        worker_id: usize,
-        receiver: Arc<Mutex<Receiver<WorkerTask>>>,
-    ) -> Self {
+    pub fn new(worker_id: usize, receiver: Arc<Mutex<Receiver<WorkerTask>>>) -> Self {
         // Spawn thread to handle tasks
         let thread = thread::spawn(move || {
             loop {
-
                 let task = {
                     let job = match receiver.lock() {
                         // Receive task within the lock

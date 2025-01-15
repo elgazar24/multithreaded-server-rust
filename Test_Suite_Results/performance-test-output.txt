@@ -1,0 +1,17 @@
+
+
+
+Performance Test Finished
+Total Requests: 4000
+Successful Requests: 3999
+Failed Requests: 1
+Percentage of Successful Requests: 99.98%
+Total Duration: 1.32 seconds
+Requests per Second: 3025.69
+Average Response Time (seconds): 0.7319
+
+failures:
+    performance_test
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.33s
+

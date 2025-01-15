@@ -1,7 +1,3 @@
-
-
-
-
 ///
 /// WorkerTask
 ///     - Represents a task to be executed by a worker
@@ -13,11 +9,8 @@ pub struct WorkerTask {
     task_fn: Box<dyn FnOnce() + Send + 'static>,
 }
 
-
 impl WorkerTask {
-
-
-    /// Constructor 
+    /// Constructor
     pub fn new(task_fn: Box<dyn FnOnce() + Send + 'static>) -> Self {
         WorkerTask { task_fn }
     }
@@ -26,6 +19,6 @@ impl WorkerTask {
     ///     - take ownership of `self` and call the task function
     ///     - `self` is consumed, so calling `task_fn` is valid here because task can't run multiple times
     pub fn run(self) {
-        (self.task_fn)(); 
+        (self.task_fn)();
     }
 }

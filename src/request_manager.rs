@@ -1,5 +1,5 @@
 use base64::{engine::general_purpose::STANDARD, Engine};
-use std::io:: Write;
+use std::io::Write;
 use std::{fs, net::TcpStream, path::Path};
 
 use std::io::Read;
@@ -33,21 +33,20 @@ impl RequestManager {
     //     RequestManager {}
     // }
 
-    pub fn handle_request(mut stream: &mut TcpStream) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn handle_request(stream: &mut TcpStream) -> Result<(), Box<dyn std::error::Error>> {
         // Parse the HTTP request
-        let request = RequestManager::parse_request(&mut stream)?;
+        let request = RequestManager::parse_request(stream)?;
 
         // Generate the appropriate response
         let response = RequestManager::generate_response(&request)?;
 
         // Send the response
-        RequestManager::send_response(&mut stream, &response)?;
+        RequestManager::send_response(stream, &response)?;
 
         Ok(())
     }
 
     fn parse_request(stream: &mut TcpStream) -> Result<HttpRequest, Box<dyn std::error::Error>> {
-
         // read the request
         let mut buffer = [0; 512];
         // Read data from the client
@@ -55,29 +54,27 @@ impl RequestManager {
 
         let request = String::from_utf8_lossy(&buffer[..bytes_read]).to_string();
 
-        println!("from parse {}" , request);
-        // Split the request line into method, path, and version and remove \nHost: 
+        // Split the request line into method, path, and version and remove \nHost:
         let mut parts: Vec<&str> = request.split(" ").collect();
 
         if parts.len() >= 3 {
             parts[2] = parts[2].split("\r\n").collect::<Vec<&str>>()[0];
         }
 
-        if parts[0] != "GET" && parts[0] != "POST" && parts[0] != "PUT" && parts[0] != "DELETE" && parts[0] != "INVALID" {
-
-            println!("from parse {}" , request);
-
-                // Normal message format not http format will echo the message back
-                return Ok(HttpRequest {
-                    method: String::from("MESSAGE"),
-                    path: request,
-                    _version: String::from("MESSAGE"),
-                });
-                // return Err("Invalid HTTP request format , message sent back".into());
-
+        if parts[0] != "GET"
+            && parts[0] != "POST"
+            && parts[0] != "PUT"
+            && parts[0] != "DELETE"
+            && parts[0] != "INVALID"
+        {
+            // Normal message format not http format will echo the message back
+            return Ok(HttpRequest {
+                method: String::from("MESSAGE"),
+                path: request,
+                _version: String::from("MESSAGE"),
+            });
+            // return Err("Invalid HTTP request format , message sent back".into());
         }
- 
-        
 
         Ok(HttpRequest {
             method: parts[0].to_string(),
@@ -114,7 +111,7 @@ impl RequestManager {
         }
     }
 
-    /// Serves a row messages 
+    /// Serves a row messages
     fn serve_message(message: &str) -> Result<HttpResponse, Box<dyn std::error::Error>> {
         Ok(HttpResponse {
             status_line: "MESSAGE".to_string(),
@@ -189,7 +186,6 @@ impl RequestManager {
         stream: &mut TcpStream,
         response: &HttpResponse,
     ) -> Result<(), Box<dyn std::error::Error>> {
-
         let response_string: String;
 
         if response.status_line == "MESSAGE" {
